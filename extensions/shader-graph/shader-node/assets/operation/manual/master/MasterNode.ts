@@ -14,7 +14,7 @@ import { ensureEnumDefines, fs, getEnumDefine, getEnumNames, path } from '../../
 import { ShaderSlot } from '../../slot';
 import { ShaderProperty, ShaderPropertyType } from '../../property';
 import { shaderContext } from '../../context';
-import { Asset, Material, Texture2D, assetManager } from 'cc';
+import { Asset, Material, Texture2D, assetManager, renderer } from 'cc';
 
 export enum MasterSlotType {
     Vertex,
@@ -97,6 +97,10 @@ export default class MasterNode extends ShaderNode {
             if (p.type === ShaderPropertyType.Texture2D) {
                 precision = 'sampler2D';
                 mtlValue = 'white';
+
+                if (value instanceof Texture2D && value.uuid) {
+                    mtlValue = value.uuid;
+                }
             }
             else if (p.type === ShaderPropertyType.TextureCube) {
                 precision = 'samplerCube';
@@ -307,23 +311,49 @@ export default class MasterNode extends ShaderNode {
         const result = new cc.EffectAsset();
         Object.assign(result, effect);
         result.onLoaded();
-        material.initialize({ effectAsset: effect });
 
+        // material.initialize({ effectAsset: effect });
+
+        let mappedTextures = {}
         await Promise.all(shaderContext.properties.map(async p => {
-            if (p.type === ShaderPropertyType.Texture2D || p.type === ShaderPropertyType.TextureCube) {
+            if (p && p.value && p.type === ShaderPropertyType.Texture2D || p.type === ShaderPropertyType.TextureCube) {
                 const uuid = (p.value as Texture2D).uuid;
+                if (!uuid || uuid === 'white') {
+                    return;
+                }
                 return new Promise(resolve => {
                     assetManager.loadAny(uuid, (err: any, asset: Texture2D) => {
                         if (err) {
                             console.error(err);
                             return resolve(null);
                         }
-                        material.setProperty(p.name, asset);
+
+                        mappedTextures[p.name] = asset;
+
+                        if (effect) {
+                            effect.techniques.forEach(t => {
+                                t.passes.forEach((p: renderer.Pass) => {
+                                    for (let name in p.properties) {
+                                        let pro = p.properties[name]
+                                        if (pro && pro.value === uuid) {
+                                            pro.value = asset
+                                        }
+                                    }
+                                })
+                            })
+                        }
+
                         resolve(null);
                     });
                 });
             }
         }));
+
+        material.initialize({ effectAsset: effect });
+
+        for (let name in mappedTextures) {
+            material.setProperty(name, mappedTextures[name]);
+        }
         
         return material;
     }
