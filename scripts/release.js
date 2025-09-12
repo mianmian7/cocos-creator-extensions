@@ -36,7 +36,7 @@ function updateVersion(newVersion) {
   const packageJsonPath = path.join(__dirname, '../package.json');
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
   packageJson.version = newVersion;
-  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\\n');
+  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
   log(`✓ 已更新 package.json 版本到 ${newVersion}`, 'green');
 }
 
@@ -52,7 +52,7 @@ function calculateNewVersion(current, type) {
       return `${major + 1}.0.0`;
     default:
       // 假设是直接指定的版本号
-      if (/^\\d+\\.\\d+\\.\\d+$/.test(type)) {
+      if (/^\d+\.\d+\.\d+$/.test(type)) {
         return type;
       }
       throw new Error(`不支持的版本类型: ${type}`);
@@ -100,15 +100,23 @@ function main() {
   
   // 确认发布
   if (!process.env.CI) {
-    log('\\n确认要发布新版本吗? 这将:', 'yellow');
+    log('\n确认要发布新版本吗? 这将:', 'yellow');
     log(`  1. 更新 package.json 版本到 ${newVersion}`, 'yellow');
     log('  2. 提交更改到 git', 'yellow');
     log(`  3. 创建标签 v${newVersion}`, 'yellow');
     log('  4. 推送到远程仓库，触发自动发布', 'yellow');
-    log('\\n按 Ctrl+C 取消，或按 Enter 继续...', 'yellow');
+    log('\n按 Ctrl+C 取消，或按 Enter 继续...', 'yellow');
     
     // 简单的暂停等待用户确认
-    require('child_process').execSync('read -p ""', { stdio: 'inherit' });
+    try {
+      if (process.platform === 'win32') {
+        require('child_process').execSync('pause', { stdio: 'inherit' });
+      } else {
+        require('child_process').execSync('read -p ""', { stdio: 'inherit' });
+      }
+    } catch (error) {
+      // 如果命令失败，跳过确认步骤
+    }
   }
   
   // 检查工作目录是否干净
@@ -118,7 +126,7 @@ function main() {
     log('⚠️  工作目录有未提交的更改，请先提交或暂存', 'yellow');
     const status = execSync('git status --porcelain', { encoding: 'utf8' });
     console.log(status);
-    log('\\n继续发布会包含这些更改', 'yellow');
+    log('\n继续发布会包含这些更改', 'yellow');
   }
   
   // 更新版本
@@ -136,7 +144,7 @@ function main() {
   runCommand('git push origin main', '推送主分支');
   runCommand(`git push origin ${tagName}`, '推送标签');
   
-  log('\\n🎉 发布流程已启动!', 'green');
+  log('\n🎉 发布流程已启动!', 'green');
   log(`📋 GitHub Actions 将自动构建并发布 ${tagName}`, 'green');
   log(`🔗 查看发布进度: https://github.com/your-username/cocos-creator-extensions/actions`, 'blue');
   log(`🚀 发布完成后可在此查看: https://github.com/your-username/cocos-creator-extensions/releases`, 'blue');
