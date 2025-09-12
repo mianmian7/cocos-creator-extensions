@@ -1,6 +1,6 @@
 {
   "name": "cocos-creator-extensions",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Store some Creator extension plugins",
   "main": ".eslintrc.js",
   "scripts": {
