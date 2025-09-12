@@ -41,7 +41,7 @@ exports.runCommandForExtensions = async function(commands, skipExtensions) {
     if (skipExtensions && skipExtensions.includes(name)) {
       console.log(chalk.yellow(`> ${name} [skip]`));
       console.log(chalk.yellow(`============================================================`));
-      break;
+      continue;
     }
 
     console.log(chalk.yellow(`> ${name}`));
@@ -71,12 +71,24 @@ exports.runCommandForExtensions = async function(commands, skipExtensions) {
             cwd: extensionDir
           });
 
-          process.stdout.clearLine();
-          process.stdout.cursorTo(0);
+          // 只在 TTY 环境中清除行和移动光标
+          if (process.stdout.isTTY && process.stdout.clearLine) {
+            process.stdout.clearLine();
+            process.stdout.cursorTo(0);
+          } else {
+            // 在非 TTY 环境中换行
+            process.stdout.write('\n');
+          }
           console.log(chalk.greenBright(`    [√] ${baseCommand}`));
         } catch (err) {
-          process.stdout.clearLine();
-          process.stdout.cursorTo(0);
+          // 只在 TTY 环境中清除行和移动光标
+          if (process.stdout.isTTY && process.stdout.clearLine) {
+            process.stdout.clearLine();
+            process.stdout.cursorTo(0);
+          } else {
+            // 在非 TTY 环境中换行
+            process.stdout.write('\n');
+          }
           console.log(chalk.redBright(`    [x] ${baseCommand}`));
           if (process.env.npm_config_log) {
             console.error(err);
