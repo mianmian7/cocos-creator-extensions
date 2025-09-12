@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送 v* 标签时触发（如 v1.0.0, v2.1.3）
+
+permissions:
+  contents: write  # 需要写权限来创建 release
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build extensions
+        run: npm run build
+
+      - name: Package extensions
+        run: npm run pack
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create Release with Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## 🚀 Release ${{ steps.get_version.outputs.VERSION }}
+            
+            ### 📦 包含的扩展
+            - localization-editor
+            - shader-graph
+            
+            ### 📥 下载说明
+            下载对应的 `.zip` 文件，解压后将文件夹放入 Cocos Creator 的 `extensions` 目录中。
+            
+            ### 🔧 安装方法
+            1. 下载需要的扩展 zip 文件
+            2. 在 Cocos Creator 中打开 `扩展 > 扩展管理器`
+            3. 点击右上角的 `+` 按钮
+            4. 选择 `导入扩展` 并选择下载的 zip 文件
+            
+            ### 📋 更新日志
+            请查看 [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) 了解详细更新内容。
+            
+            ---
+            *此版本通过 GitHub Actions 自动构建和发布*
+          files: |
+            dist/*.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true

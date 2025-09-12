@@ -45,6 +45,28 @@ npm run pack
 npm run test 
 ```
 
+### Releasing
+
+```bash
+// Release a patch version (1.0.0 -> 1.0.1)
+npm run release:patch
+
+// Release a minor version (1.0.0 -> 1.1.0) 
+npm run release:minor
+
+// Release a major version (1.0.0 -> 2.0.0)
+npm run release:major
+
+// Release a specific version
+npm run release 1.2.3
+```
+
+The release process will:
+1. Update the version in `package.json`
+2. Commit the version change
+3. Create a git tag
+4. Push to GitHub and trigger automatic release via GitHub Actions
+
 ### Executing a Command for a Single Plugin
 
 Specify **--extension="PluginName"** or **--ext="PluginName"** after each specific command to individually execute a command for a certain plugin.
