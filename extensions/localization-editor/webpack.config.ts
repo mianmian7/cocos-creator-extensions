@@ -6,11 +6,13 @@ import { merge } from 'webpack-merge';
 import pkg from './package.json';
 import {DefinePlugin} from 'webpack';
 
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = !isProduction;
 const externalsFromPackages: string[] = Object.keys(pkg.dependencies ?? {});
-const mode: Configuration['mode'] = process.env['production'] ? 'production' : 'development';
+const mode: Configuration['mode'] = isProduction ? 'production' : 'development';
 const mainEntry = {
     'main': [
-        'webpack/hot/poll?1000',
+        ...(isDevelopment ? ['webpack/hot/poll?1000'] : []),
         resolve(__dirname, 'src', 'lib', 'main', 'main.ts'),
     ],
     'scene': resolve(__dirname, 'src', 'lib', 'scene', 'scene.ts'),
@@ -43,6 +45,9 @@ const base: Configuration = {
         clean: true,
         publicPath: '',
     },
+    cache: {
+        type: 'filesystem',
+    },
     module: {
         rules: [
             {
@@ -62,15 +67,22 @@ const base: Configuration = {
     },
     resolve: {
         extensions: ['.vue', '.js', '.json', '.ts', '.less', '.css', '...'],
+        alias: {
+            vue: 'vue/dist/vue.runtime.esm-bundler.js',
+        },
     },
     plugins: [
-        new HotModuleReplacementPlugin(),
-        new DashboardPlugin(),
+        ...(isDevelopment ? [new HotModuleReplacementPlugin(), new DashboardPlugin()] : []),
         new ProgressPlugin(),
+        new DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(mode),
+        }),
     ],
     devtool: mode === 'production' ? undefined : 'source-map',
     optimization: {
         minimize: mode === 'production' ? true : false,
+        moduleIds: 'deterministic',
+        chunkIds: 'deterministic',
     },
 };
 
@@ -87,6 +99,14 @@ const configs: Configuration[] = [
             path: resolve(__dirname, 'webpack-dist', 'electron-renderer'),
         },
         entry: renderEntry,
+        optimization: {
+            splitChunks: {
+                chunks: 'all',
+            },
+            runtimeChunk: {
+                name: 'runtime',
+            },
+        },
         module: {
             rules: [
                 {
