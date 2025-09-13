@@ -35,9 +35,7 @@
 
 <script lang="ts">
 import 'reflect-metadata';
-import HOME from './panel/default-home.vue';
-import { onMounted, onUnmounted, ref } from 'vue';
-import Translate from './panel/default-translate.vue';
+import { defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue';
 import { CustomError } from '../../../lib/core/error/Errors';
 import { container } from 'tsyringe';
 import EventBusService from '../../../lib/core/service/util/EventBusService';
@@ -45,6 +43,8 @@ import DefaultMask from './panel/default-mask.vue';
 import WrapperMainIPC from '../../../lib/core/ipc/WrapperMainIPC';
 import { MainName } from '../../../lib/core/service/util/global';
 
+const HOME = defineAsyncComponent(() => import('./panel/default-home.vue'));
+const Translate = defineAsyncComponent(() => import('./panel/default-translate.vue'));
 const eventBus = container.resolve(EventBusService);
 const wrapper = container.resolve(WrapperMainIPC);
 export default {

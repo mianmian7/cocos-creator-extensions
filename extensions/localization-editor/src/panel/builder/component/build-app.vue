@@ -14,12 +14,12 @@
 </template>
 
 <script lang="ts">
-import { onMounted, onUnmounted } from 'vue';
-import HOME from './panel/build-home.vue';
+import { defineAsyncComponent, onMounted, onUnmounted } from 'vue';
 import type { CustomError } from '../../../lib/core/error/Errors';
 import EventBusService from '../../../lib/core/service/util/EventBusService';
 import { container } from 'tsyringe';
 const eventBusService = container.resolve(EventBusService);
+const HOME = defineAsyncComponent(() => import('./panel/build-home.vue'));
 
 export default {
     components: {
