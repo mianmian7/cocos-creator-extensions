@@ -1,0 +1,120 @@
+{
+  "project_name": "cocos-creator-extensions",
+  "created_at": "2025-09-14T00:07:02.000Z",
+  "scanned_at": "2025-09-14T00:07:02.000Z",
+  "structure": {
+    "root": {
+      "type": "monorepo",
+      "language": "mixed",
+      "entry_point": "package.json",
+      "scripts": [
+        "postinstall",
+        "build",
+        "publish",
+        "pack",
+        "test",
+        "ci",
+        "release",
+        "release:patch",
+        "release:minor",
+        "release:major"
+      ]
+    },
+    "modules": {
+      "shader-graph": {
+        "path": "extensions/shader-graph",
+        "type": "cocos_extension",
+        "language": "typescript",
+        "main_entry": "dist/main.js",
+        "panel_entry": "dist/panels/shader-graph/index.js",
+        "version": "1.0.0",
+        "editor_requirement": ">=3.8.2",
+        "dependencies": [
+          "@cocos/creator-types",
+          "vue",
+          "@itharbors/ui-graph",
+          "lodash",
+          "js-yaml"
+        ],
+        "features": [
+          "visual_shader_editor",
+          "node_graph_interface",
+          "asset_handler",
+          "live_preview"
+        ],
+        "test_coverage": "basic"
+      },
+      "localization-editor": {
+        "path": "extensions/localization-editor",
+        "type": "cocos_extension",
+        "language": "typescript",
+        "main_entry": "webpack-dist/electron-main/main.js",
+        "panel_entry": "webpack-dist/electron-renderer/default.js",
+        "version": "1.0.4",
+        "editor_requirement": ">=3.8.5",
+        "dependencies": [
+          "vue",
+          "webpack",
+          "tsyringe",
+          "i18next",
+          "gettext-extractor"
+        ],
+        "features": [
+          "localization_management",
+          "translation_interface",
+          "file_import_export",
+          "auto_translation"
+        ],
+        "test_coverage": "comprehensive"
+      }
+    },
+    "workflow": {
+      "path": "workflow",
+      "type": "build_scripts",
+      "language": "javascript",
+      "purpose": "automation_and_build_tools"
+    }
+  },
+  "ignored_patterns": [
+    ".DS_Store",
+    "Thumbs.db",
+    "node_modules/",
+    "npm-debug.log",
+    "yarn-error.log",
+    "config.js",
+    ".env",
+    "package-lock.json",
+    "yarn.lock",
+    "dist/",
+    "build/",
+    ".tmp/",
+    ".cache/",
+    ".history/",
+    "logs/",
+    "*.log",
+    "coverage/",
+    ".vscode/",
+    ".idea/",
+    "*.swp"
+  ],
+  "coverage": {
+    "total_files_estimated": 500,
+    "scanned_files": 120,
+    "coverage_percentage": 24,
+    "modules_scanned": 2,
+    "modules_total": 2,
+    "truncated": false,
+    "gaps": [
+      "shader-graph detailed node implementations",
+      "localization-editor Vue components",
+      "build pipeline configurations",
+      "test suites details"
+    ]
+  },
+  "next_steps": [
+    "Read shader-graph core implementation files",
+    "Analyze localization-editor service architecture",
+    "Document build and deployment processes",
+    "Expand test coverage documentation"
+  ]
+}
